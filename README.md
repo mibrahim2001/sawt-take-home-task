@@ -4,16 +4,6 @@
 
 # No-Interrupt First Response Voice Agent
 
-<p>
-  <a href="https://cloud.livekit.io/projects/p_/sandbox"><strong>Deploy a sandbox app</strong></a>
-  •
-  <a href="https://docs.livekit.io/agents/overview/">LiveKit Agents Docs</a>
-  •
-  <a href="https://livekit.io/cloud">LiveKit Cloud</a>
-  •
-  <a href="https://blog.livekit.io/">Blog</a>
-</p>
-
 A specialized voice agent implementation using LiveKit Agents that prevents interruptions during the agent's first response to improve conversation flow.
 
 ## Overview

@@ -60,6 +60,8 @@ async def entrypoint(ctx: JobContext):
     @agent.on("agent_speech_committed")
     def on_agent_speech_committed(speech_handle: SpeechHandle):
         logger.info("------->In on_agent_speech_committed method now<-------")
+        # Handle edge case for initial greeting 
+        # We only count the first response if the user has already provided input
         if agent._first_user_input_received:
             agent._agent_responses += 1
             if agent._agent_responses > 0:
