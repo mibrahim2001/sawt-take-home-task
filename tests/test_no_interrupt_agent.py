@@ -42,7 +42,6 @@ class TestNoInterruptFirstResponseAgent(unittest.TestCase):
         """
         Test that the agent initializes with the correct default state.
         """
-        self.assertFalse(self.agent._first_response_completed)
         self.assertFalse(self.agent._first_user_input_received)
         self.assertEqual(self.agent._agent_responses, 0)
     

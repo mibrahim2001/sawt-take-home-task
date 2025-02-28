@@ -19,10 +19,8 @@ class NoInterruptFirstResponseAgent(VoicePipelineAgent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._first_response_completed = False
         self._first_user_input_received = False
         self._agent_responses = 0
-        self._agent_say_used = False
         logger.info("NoInterruptFirstResponseAgent initialized")
 
     def _should_interrupt(self) -> bool:

@@ -49,11 +49,10 @@ The implementation is based on LiveKit's VoicePipelineAgent with customizations 
 
 ### Custom Agent Class
 
-The solution introduces a custom `NoInterruptFirstResponseAgent` class that extends the standard `VoicePipelineAgent`. This class tracks the state of the conversation using three key variables:
+The solution introduces a custom `NoInterruptFirstResponseAgent` class that extends the standard `VoicePipelineAgent`. This class tracks the state of the conversation using two key variables:
 
 - `_first_user_input_received`: Flags whether the user has provided their first input
 - `_agent_responses`: Counts how many responses the agent has delivered
-- `_first_response_completed`: Tracks if the first full agent response is completed
 
 ### Key Components
 

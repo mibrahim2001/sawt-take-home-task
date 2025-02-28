@@ -8,7 +8,6 @@ from livekit.agents import (
     WorkerOptions,
     cli,
     llm,
-    metrics,
 )
 from livekit.plugins import openai, deepgram, silero, turn_detector
 from src.no_interrupt_agent import NoInterruptFirstResponseAgent
@@ -40,10 +39,6 @@ async def entrypoint(ctx: JobContext):
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice assistant for participant {participant.identity}")
 
-    # This project is configured to use Deepgram STT, OpenAI LLM and Cartesia TTS plugins
-    # Other great providers exist like Cerebras, ElevenLabs, Groq, Play.ht, Rime, and more
-    # Learn more and pick the best one for your app:
-    # https://docs.livekit.io/agents/plugins
     agent = NoInterruptFirstResponseAgent(
         vad=ctx.proc.userdata["vad"],
         stt=deepgram.STT(),
@@ -57,13 +52,6 @@ async def entrypoint(ctx: JobContext):
         chat_ctx=initial_ctx,
     )
 
-    usage_collector = metrics.UsageCollector()
-
-    @agent.on("metrics_collected")
-    def on_metrics_collected(agent_metrics: metrics.AgentMetrics):
-        metrics.log_metrics(agent_metrics)
-        usage_collector.collect(agent_metrics)
-
     @agent.on("user_speech_committed")
     def on_user_speech_committed(speech_handle: SpeechHandle):
         logger.info("------->In on_user_speech_committed method now<-------")
@@ -72,16 +60,17 @@ async def entrypoint(ctx: JobContext):
     @agent.on("agent_speech_committed")
     def on_agent_speech_committed(speech_handle: SpeechHandle):
         logger.info("------->In on_agent_speech_committed method now<-------")
-        agent._agent_responses += 1
-        if agent._first_user_input_received and agent._agent_responses == 1:
-            logger.info("First response completed, interruptions will now be allowed")
+        if agent._first_user_input_received:
+            agent._agent_responses += 1
+            if agent._agent_responses > 0:
+                logger.info("First response completed, interruptions will now be allowed")
 
     agent.start(ctx.room, participant)
 
-    # # The initial greeting is not considered the first response to user input
-    # await agent.say(
-    #     "Hello, how can I help you today?"
-    # )
+    # The initial greeting is not considered the first response to user input
+    await agent.say(
+        "Hello, how can I help you today?"
+    )
 
 if __name__ == "__main__":
     cli.run_app(
