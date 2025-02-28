@@ -11,7 +11,7 @@ from livekit.agents import (
     metrics,
 )
 from livekit.plugins import openai, deepgram, silero, turn_detector
-from NoInterruptFirstResponseAgent import NoInterruptFirstResponseAgent
+from src.no_interrupt_agent import NoInterruptFirstResponseAgent
 from livekit.agents.pipeline.speech_handle import SpeechHandle
 
 
@@ -29,7 +29,6 @@ async def entrypoint(ctx: JobContext):
         text=(
             "You are a voice assistant. You yap but not that much."
             "You like to talk about random stuff. You are also a bit of a know it all."
-            "You are a bit of a jerk and you like to argue with people."
             "Do not exceed 100 words in your responses."
         ),
     )
@@ -64,23 +63,25 @@ async def entrypoint(ctx: JobContext):
     def on_metrics_collected(agent_metrics: metrics.AgentMetrics):
         metrics.log_metrics(agent_metrics)
         usage_collector.collect(agent_metrics)
-        
+
     @agent.on("user_speech_committed")
     def on_user_speech_committed(speech_handle: SpeechHandle):
         logger.info("------->In on_user_speech_committed method now<-------")
         agent._first_user_input_received = True
-    
+
     @agent.on("agent_speech_committed")
     def on_agent_speech_committed(speech_handle: SpeechHandle):
         logger.info("------->In on_agent_speech_committed method now<-------")
         agent._agent_responses += 1
-        
-        
+        if agent._first_user_input_received and agent._agent_responses == 1:
+            logger.info("First response completed, interruptions will now be allowed")
+
     agent.start(ctx.room, participant)
 
-    # The agent should be polite and greet the user when it joins :)
-    await agent.say("Hey, this is a voice agent that can only be interrupted after the first response. This is a demo for this agent.", allow_interruptions=True)
-
+    # # The initial greeting is not considered the first response to user input
+    # await agent.say(
+    #     "Hello, how can I help you today?"
+    # )
 
 if __name__ == "__main__":
     cli.run_app(
@@ -88,4 +89,4 @@ if __name__ == "__main__":
             entrypoint_fnc=entrypoint,
             prewarm_fnc=prewarm,
         ),
-    )
+    ) 
